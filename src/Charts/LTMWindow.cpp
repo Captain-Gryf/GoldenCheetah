@@ -215,6 +215,7 @@ LTMWindow::LTMWindow(Context *context) :
             << tr("All");
     rGroupBy->setStrings(strings);
     rGroupBy->setValue(0);
+    rGroupBy->setMinimumWidth(100);
 
     revealLayout->addWidget(rGroupBy);
     rData = new QCheckBox(tr("Data Table"), this);
@@ -1342,7 +1343,7 @@ LTMWindow::dataTable(bool html)
                     summary = summary.arg(v);
                 } else {
                     // no precision
-                    summary = summary.arg(QString("%1").arg(columns[j].y[row], 0, 'f', 0));
+                    summary = summary.arg(QString("%1").arg(columns[j].y[row], 0, 'f', 1));
                 }
 
                 //

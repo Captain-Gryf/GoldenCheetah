@@ -59,7 +59,7 @@
 CPPlot::CPPlot(CriticalPowerWindow *parent, Context *context, bool rangemode) : QwtPlot(parent), parent(parent),
 
     // model
-    model(0), modelVariant(0), fit(0), fitdata(0),
+    model(0), modelVariant(0), fit(0), fitdata(0), modelDecay(false),
 
     // state
     context(context), bestsCache(NULL), dateCV(0.0), isRun(false), isSwim(false),
@@ -357,6 +357,7 @@ CPPlot::initModel()
         break;
     case 2 : // 3 param
         pdModel = new CP3Model(context);
+        static_cast<CP3Model*>(pdModel)->modelDecay = modelDecay;
         break;
     case 3 : // extended model
         pdModel = new ExtendedModel(context);
@@ -1066,6 +1067,7 @@ CPPlot::plotTests(RideItem *rideitem)
         // honoring chart settings and filters, lets set the list of
         // rides we will search for performance tests...
         FilterSet fs;
+        fs.addFilter(parent->searchBox->isFiltered(), SearchFilterBox::matches(context, parent->searchBox->filter())); // chart settings
         fs.addFilter(context->isfiltered, context->filters);
         fs.addFilter(context->ishomefiltered, context->homeFilters);
         Specification spec;
@@ -1074,7 +1076,8 @@ CPPlot::plotTests(RideItem *rideitem)
 
         foreach(RideItem *r, context->athlete->rideCache->rides()) {
             // does it match ?
-            if (spec.pass(r)) rides << r;
+            if ((r->isSwim == isSwim) && (r->isRun == isRun) && spec.pass(r))
+                rides << r;
         }
 
         foreach (RideItem *item, rides) {
@@ -2337,7 +2340,7 @@ CPPlot::showXAxisLinear(bool x)
 
 // model parameters!
 void
-CPPlot::setModel(int sanI1, int sanI2, int anI1, int anI2, int aeI1, int aeI2, int laeI1, int laeI2, int model, int variant, int fit, int fitdata)
+CPPlot::setModel(int sanI1, int sanI2, int anI1, int anI2, int aeI1, int aeI2, int laeI1, int laeI2, int model, int variant, int fit, int fitdata, bool decay)
 {
     this->anI1 = double(anI1);
     this->anI2 = double(anI2);
@@ -2353,6 +2356,7 @@ CPPlot::setModel(int sanI1, int sanI2, int anI1, int anI2, int aeI1, int aeI2, i
     this->modelVariant = variant;
     this->fit = fit;
     this->fitdata = fitdata;
+    this->modelDecay = decay;
 
     clearCurves();
 }
